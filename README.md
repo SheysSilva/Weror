@@ -3,8 +3,6 @@
 
 API com chaves de notas fiscais para uso interno da empresa Contagil. 
 
-###### Site: [Contagil](http://www.contagilpb.com.br/)
-
 ## Migrar o banco de dados
 
 ```
@@ -15,3 +13,16 @@ flask db migrate
 ```
 flask db upgrade
 ```
+
+## Rodar o projeto
+
+```
+flask run
+```
+
+## Rodar os Testes
+
+```
+python test.py
+```
+###### Site: [Contagil](http://www.contagilpb.com.br/)
