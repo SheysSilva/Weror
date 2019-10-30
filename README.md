@@ -14,10 +14,16 @@ flask db migrate
 flask db upgrade
 ```
 
-## Rodar o projeto
+## Rodar o projeto localmente
 
 ```
 flask run
+```
+
+## Rodar o projeto para acesso remoto
+
+```
+flask run --host=0.0.0.0 --port=80
 ```
 
 ## Rodar os Testes
