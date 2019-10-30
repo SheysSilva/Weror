@@ -1,0 +1,1 @@
+SQLALCHEMY_DATABASE_URI = 'mysql://contagilclient:#c0nt4g1l@localhost/Weror'
