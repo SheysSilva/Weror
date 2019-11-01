@@ -31,4 +31,14 @@ flask run --host=0.0.0.0 --port=80
 ```
 python test.py
 ```
+
+## Status das Chaves
+
+As chaves possuem quatro estados diferentes:
+
+- (Using): Chave em uso.
+- (Free): Chave disponivel para uso.
+- (Ok): Chave já foi usada em outra consulta.
+- (Bloqued): Chave está bloqueada para uso.
+
 ###### Site: [Contagil](http://www.contagilpb.com.br/)
