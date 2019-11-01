@@ -10,7 +10,7 @@ class Chaves(db.Model):
     __tablename__ = 'Chaves'
 
     id = db.Column(db.String(44), primary_key=True)
-    verify = db.Column(db.Boolean, default=False)
+    status = db.Column(db.String(10), default='Free')
 
     def __init__(self, id):
         self.id = id

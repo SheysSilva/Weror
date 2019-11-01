@@ -8,7 +8,6 @@ from config import app_config
 # db variable initialization
 db = SQLAlchemy()
 
-
 def create_app(config_name):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(app_config[config_name])
@@ -25,13 +24,17 @@ def create_app(config_name):
 
     @app.route('/chaves/', methods=['GET'])
     def getAll():
-        chaves = Chaves.query.filter_by(verify=False).limit(64)
+        chaves = Chaves.query.filter_by(status='Free').limit(64)
         res = {}
         for chave in chaves:
+            chave.status = 'Using'
+            db.session.commit()
+
             res[chave.id] = {
                 'id': chave.id,
-                'verify': chave.verify
-            }
+                'status': chave.status
+            }          
+                
         return jsonify(res)
 
     @app.route('/chaves/<id>', methods=['GET'])
@@ -41,7 +44,7 @@ def create_app(config_name):
             abort(404)
         res = {
             'id': chave.id,
-            'verify': chave.verify
+            'status': chave.status
         }
 
         return jsonify(res)
@@ -50,7 +53,7 @@ def create_app(config_name):
     def post():
         id = request.form.get('id')
         if not id:
-            return 'ID null!'
+            return jsonify({'return':'ID null!'})
         else:
         	chave = Chaves(str(id))
         	db.session.add(chave)
@@ -60,15 +63,19 @@ def create_app(config_name):
     @app.route('/chaves/', methods=['PUT'])
     def put():
         id = request.form.get('id')
+        status = request.form.get('status')
+        status = str(status)
         chave = Chaves.query.filter_by(id=id).first()
         
         if not chave:
             return jsonify({'return': 'Not Exist'})
+        if not status or not status.strip() or status == 'None':
+            return jsonify({'return':'Status is Null'})
         else:
-            chave.verify = True
+            chave.status = status
             db.session.commit()
             chave = Chaves.query.filter_by(id=id).first()
-            return jsonify({'id': chave.id, 'verify': chave.verify})
+            return jsonify({'id': chave.id, 'status': chave.status})
     
     @app.route('/chaves/', methods=['DELETE'])
     def delete():
@@ -81,14 +88,14 @@ def create_app(config_name):
             if not chave:
                 return jsonify({'return': 'Not Exist'})
             else:
-                if chave.verify:
+                if chave.status == 'Ok':
                     db.session.delete(chave)
                     db.session.commit()
-                    return jsonify({'return':'Success', 'id': chave.id, 'verify': chave.verify})
-                return jsonify({'return': 'Key not used', 'id': chave.id, 'verify': chave.verify})
+                    return jsonify({'return':'Success', 'id': chave.id, 'status': chave.status})
+                return jsonify({'return': 'Key not used', 'id': chave.id, 'status': chave.status})
         
     def deleteAll():
-        chaves = Chaves.query.filter_by(verify=True)
+        chaves = Chaves.query.filter_by(status='Ok')
         for chave in chaves:
             db.session.delete(chave)
             db.session.commit()
