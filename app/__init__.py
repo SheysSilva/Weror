@@ -17,7 +17,6 @@ def create_app(config_name):
 
     from app.models import Chaves
 
-	# temporary route
     @app.route('/')
     def hello_world():
         return 'Hello, World!'
