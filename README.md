@@ -3,6 +3,19 @@
 
 API com chaves de notas fiscais para uso interno da empresa Contagil. 
 
+## Configuração Inicial
+
+```
+export FLASK_CONFIG=development
+export FLASK_APP=run.py
+```
+
+## Iniciar o banco de dados
+
+```
+flask db init
+```
+
 ## Migrar o banco de dados
 
 ```
@@ -23,7 +36,7 @@ flask run
 ## Rodar o projeto para acesso remoto
 
 ```
-flask run --host=0.0.0.0 --port=80
+flask run --host=0.0.0.0 --port=8080
 ```
 
 ## Rodar os Testes
