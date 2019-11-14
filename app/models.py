@@ -1,4 +1,7 @@
 from app import db
+from sqlalchemy import Integer, ForeignKey, String, Column
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref
 
 class Chaves(db.Model):
     """
@@ -10,7 +13,7 @@ class Chaves(db.Model):
     __tablename__ = 'Chaves'
 
     id = db.Column(db.String(44), primary_key=True)
-    status = db.Column(db.String(10), default='Free')
+    status = db.Column(db.String(10), default='Free', nullable=False)
 
     def __init__(self, id):
         self.id = id
@@ -28,8 +31,7 @@ class Company(db.Model):
     __tablename__ = 'Company'
 
     id = db.Column(db.String(14), primary_key=True)
-    status = db.Column(db.String(10), default='Active')
-
+    status = db.Column(db.String(10), default='Active', nullable=False)
 
     def __init__(self, id):
         self.id = id
@@ -42,16 +44,27 @@ class NumberDocument(db.Model):
     __tablename__ = 'NumberDocument'
 
     id = db.Column(db.String(9), primary_key=True)
-    month = db.Column(db.String(20), primary_key=True)
-    status = db.Column(db.String(10), nullable=False)
-    cnpj = db.Column(db.String(14), db.ForeignKey('Company.id'),
-        nullable=False)
+    month = db.Column(db.String(2), primary_key=True)
+    year = db.Column(db.String(2), primary_key=True)
+    status = db.Column(db.String(10), default='Blocked', nullable=False)
+    relationship = db.relationship('Relationship', backref='NumberDocument')
 
-    def __init__(self, id, month, status, cnpj):
+    def __init__(self, id, month, year, id_company):
         self.id = id,
-        self.month = month,
-        self.status = status,
-        self.cnpj = cnpj
-    
+        self.month = month
+        self.year = year
+
     def __repr__(self):
         return '<NumberDocument %d>' % self.id
+
+class Relationship(db.Model):
+    """docstring for Relationship"""
+    __tablename__ = 'Relationship'
+
+    id_company = db.Column(db.String(14), db.ForeignKey('Company.id'), primary_key=True, nullable=False)
+    id_numberDocument = db.Column(db.String(9), db.ForeignKey('NumberDocument.id'), primary_key=True, nullable=False)
+    status = db.Column(db.String(10), default='Active',  nullable=False)
+
+    def __init__(self, id_company, id_numberDocument):
+        self.id_company = id_company,
+        self.id_numberDocument = id_numberDocument

@@ -1,12 +1,13 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from app.models.key import *
+from app.models.relationship import *
 
 # local imports
 from config import app_config
 
 # db variable initialization
-db = SQLAlchemy()
 
 def create_app(config_name):
     app = Flask(__name__, instance_relative_config=True)
@@ -19,7 +20,7 @@ def create_app(config_name):
     companies= '/companies/'
     numberDocument = '/numberDocument/'
 
-    from app.models import Chaves, Company, NumberDocument
+    from app.models.models import Chaves, Company, NumberDocument
 
     @app.route('/')
     def hello_world():
@@ -248,6 +249,13 @@ def create_app(config_name):
             db.session.delete(company)
             db.session.commit()
         return jsonify({'return':'Success'})
+                
+    def deleteCompanies():
+        numberDocuments = NumberDocument.query.filter_by(status='Ok')
+        for numberDocument in numberDocuments:
+            db.session.delete(numberDocument)
+            db.session.commit()
+        return jsonify({'return':'Success'})
 
     ### Number Document ###
 
@@ -377,13 +385,6 @@ def create_app(config_name):
                     'status': numberDocument.status,
                     'cnpj': numberDocument.cnpj
                 })
-        
-    def deleteCompanies():
-        numberDocuments = NumberDocument.query.filter_by(status='Ok')
-        for numberDocument in numberDocuments:
-            db.session.delete(numberDocument)
-            db.session.commit()
-        return jsonify({'return':'Success'})
 
     def isNull(a):
         a = str(a)
