@@ -74,13 +74,11 @@ _Cada Numero de Documento possui uma relação com a Empresa, onde essa relaçã
 
 ## Relação entre Numero de Documento(Number Document) e Empresa(Company)
 
------------------------------------------------
 | id_company     | id_numberDocument | status |
------------------------------------------------
+|----------------|-------------------|--------|
 | 52201001355983 | 522010011         | Active |
 | 52201001355983 | 522010013         | Active |
 | 52201001355983 | 522010014         | Active |
------------------------------------------------
 
 ### Status da Relação
 
