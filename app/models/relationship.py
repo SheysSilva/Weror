@@ -1,5 +1,7 @@
 from app.db import db
+from flask import jsonify
 from app.util.util import *
+from app.models.models import *
 
 def postRelationship(id_company, id_numberDocument):
 	if isNull(id_company) and isNull(id_numberDocument):

@@ -1,4 +1,5 @@
 from app.db import db
+from flask import jsonify
 from app.util.util import *
 from app.models.models import *
 
@@ -33,11 +34,17 @@ def getCompanyId(id):
 def postCompany(id):
     if isNull(id):
         return jsonify({'return':'ID null!'})
-    else:
+
+    company = Company.query.filter_by(id=str(id)).first()
+        
+    if not company:
         company = Company(str(id))
         db.session.add(company)
         db.session.commit()
         return jsonify({'id': company.id, 'status': company.status})
+    else:
+        return jsonify({'return': 'Exist Company'})
+
 
 def putCompany(id, status):
     if isNull(id) or isNull(status):

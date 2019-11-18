@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from app.models import key
+from app.models import company
 from app.models import relationship
 from app.db import db
 
@@ -108,88 +109,27 @@ def create_app(config_name):
 
     @app.route(companies, methods=['GET'])
     def getCompanies():
-        companies = Company.query.filter_by(status='Active')
-        res = {}
-        
-        for company in companies:
-
-            res[company.id] = {
-                'id': company.id,
-                'status': company.status
-            }          
-                
-        return jsonify(res)
+        return company.getCompanies()
 
     @app.route(companies+'<id>', methods=['GET'])
     def getCompanyId(id):
-        if isNull(id):
-            return jsonify({'return':'Id is Null!'})
-
-        company = Company.query.filter_by(id=str(id)).first()
-
-        if not company:
-            return jsonify({'return':'Company not exist!'})
-        res = {
-            'id': company.id,
-            'status': company.status
-        }
-
-        return jsonify(res)
+        return company.getCompanyId(id)
 
     @app.route(companies, methods=['POST'])
     def postCompany():
         id = request.form.get('id')
-
-        if isNull(id):
-            return jsonify({'return':'ID null!'})
-        else:
-            company = Company(str(id))
-            db.session.add(company)
-            db.session.commit()
-            return jsonify({'id': company.id, 'status': company.status})
+        return company.postCompany(id)
 
     @app.route(companies, methods=['PUT'])
     def putCompany():
         id = request.form.get('id')
         status = request.form.get('status')
-
-        if isNull(id) or isNull(status):
-            return jsonify({'return':'Values is Null'})
-
-        company = Company.query.filter_by(id=str(id)).first()
-        
-        if not company:
-            return jsonify({'return': 'Not Exist'})
-        else:
-            company.status = str(status)
-            db.session.commit()
-            company = Company.query.filter_by(id=str(id)).first()
-            return jsonify({'id': company.id, 'status': company.status})
+        return company.putCompany(id, status)
 
     @app.route(companies, methods=['DELETE'])
     def deleteCompany():
         id = request.form.get('id')
-
-        if isNull(id): 
-            return deleteCompanies()
-        else:
-            company = Company.query.filter_by(id=str(id)).first()
-            
-            if not company:
-                return jsonify({'return': 'Not Exist'})
-            else:
-                if company.status == 'Inactive':
-                    db.session.delete(company)
-                    db.session.commit()
-                    return jsonify({'return':'Success', 'id': company.id, 'status': company.status})
-                return jsonify({'return': 'Key not used', 'id': company.id, 'status': company.status})
-        
-    def deleteCompanies():
-        companies = Company.query.filter_by(status='Ok')
-        for company in companies:
-            db.session.delete(company)
-            db.session.commit()
-        return jsonify({'return':'Success'})
+        return company.deleteCompany(id)
 
     ### Number Document ###
 
