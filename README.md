@@ -54,4 +54,37 @@ As chaves possuem quatro estados diferentes:
 - (Ok): Chave já foi usada em outra consulta.
 - (Bloqued): Chave está bloqueada para uso.
 
+## Status das Empresas(Companies)
+
+As Empresas possuem quatro estados diferentes:
+
+- (Active): Pode gerar chaves para o CNPJ dessa empresa.
+- (Inactive): A empresa está empedida de gerar chaves.
+- (Bloqued): A empresa não irá gerar chaves por um tempo determinado.
+
+## Status do Numeros de Documento(Number Documents)
+
+Os Numeros de Documentos possuem quatro estados diferentes:
+
+- (Active): Gerou nota
+- (Inactive): Não gerou nota
+- (Bloqued): Ainda vai gerar nota
+
+_Cada Numero de Documento possui uma relação com a Empresa, onde essa relação possui um status_
+
+## Relação entre Numero de Documento(Number Document) e Empresa(Company)
+
+-----------------------------------------------
+| id_company     | id_numberDocument | status |
+-----------------------------------------------
+| 52201001355983 | 522010011         | Active |
+| 52201001355983 | 522010013         | Active |
+| 52201001355983 | 522010014         | Active |
+-----------------------------------------------
+
+### Status da Relação
+
+- (Active): Esta gerando notas.
+- (Inactive): Não gera mais notas.
+
 ###### Site: [Contagil](http://www.contagilpb.com.br/)
