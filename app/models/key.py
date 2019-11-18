@@ -1,4 +1,7 @@
 from app.db import db
+from flask import jsonify
+from app.util.util import *
+from app.models.models import *
 
 def getKeys():
     chaves = Chaves.query.filter_by(status='Free').limit(64)

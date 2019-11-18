@@ -1,4 +1,4 @@
-from app import db
+from app.db import db
 from sqlalchemy import Integer, ForeignKey, String, Column
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import backref

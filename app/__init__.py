@@ -1,13 +1,11 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from app.models.key import *
-from app.models.relationship import *
+from app.models import key
+from app.models import relationship
+from app.db import db
 
-# local imports
 from config import app_config
-
-# db variable initialization
 
 def create_app(config_name):
     app = Flask(__name__, instance_relative_config=True)
@@ -25,21 +23,6 @@ def create_app(config_name):
     @app.route('/')
     def hello_world():
         return 'Hello, World!'
-
-    @app.route(keys, methods=['GET'])
-    def getKeys():
-        chaves = Chaves.query.filter_by(status='Free').limit(64)
-        res = {}
-        for chave in chaves:
-            chave.status = 'Using'
-            db.session.commit()
-
-            res[chave.id] = {
-                'id': chave.id,
-                'status': chave.status
-            }          
-                
-        return jsonify(res)
 
     @app.route('/set/', methods=['GET'])
     def setStatus():
@@ -92,76 +75,34 @@ def create_app(config_name):
                 
         return jsonify(res)
 
+    #### KEYS ####
+    @app.route(keys, methods=['GET'])
+    def getKeys():
+        return key.getKeys()
 
     @app.route(keys+'<id>', methods=['GET'])
     def getKeyId(id):
-        if isNull(id):
-            return jsonify({'return':'Id is Null!'})
-
-        chave = Chaves.query.filter_by(id=str(id)).first()
-        if not chave:
-            return jsonify({'return':'Key not exist!'})
-        res = {
-            'id': chave.id,
-            'status': chave.status
-        }
-
-        return jsonify(res)
+        return key.getKeyId(id)
 
     @app.route(keys, methods=['POST'])
     def postKey():
         id = request.form.get('id')
-
-        if isNull(id):
-            return jsonify({'return':'ID null!'})
-        else:
-        	chave = Chaves(str(id))
-        	db.session.add(chave)
-        	db.session.commit()
-        	return jsonify({'id': chave.id})
+        return key.postKey(id)
 
     @app.route(keys, methods=['PUT'])
     def putKey():
         id = request.form.get('id')
         status = request.form.get('status')
 
-        if isNull(id) or isNull(status):
-            return jsonify({'return':'Values Null!'})
-
-        chave = Chaves.query.filter_by(id=id).first()
-        
-        if not chave:
-            return jsonify({'return': 'Not Exist'})
-        else:
-            chave.status = str(status)
-            db.session.commit()
-            chave = Chaves.query.filter_by(id=id).first()
-            return jsonify({'id': chave.id, 'status': chave.status})
+        return key.putKey(id, status)
     
     @app.route(keys, methods=['DELETE'])
     def deleteKey():
         id = request.form.get('id')
-
-        if isNull(id): 
-            return deleteKeys()
-        else:
-            chave = Chaves.query.filter_by(id=id).first()
-            
-            if not chave:
-                return jsonify({'return': 'Not Exist'})
-            else:
-                if chave.status == 'Ok':
-                    db.session.delete(chave)
-                    db.session.commit()
-                    return jsonify({'return':'Success', 'id': chave.id, 'status': chave.status})
-                return jsonify({'return': 'Key not used', 'id': chave.id, 'status': chave.status})
+        return key.deleteKey(id)
         
     def deleteKeys():
-        chaves = Chaves.query.filter_by(status='Ok')
-        for chave in chaves:
-            db.session.delete(chave)
-            db.session.commit()
-        return jsonify({'return':'Success'})
+        return key.deleteKeys()
 
     ### COMPANIES ###
 
@@ -247,13 +188,6 @@ def create_app(config_name):
         companies = Company.query.filter_by(status='Ok')
         for company in companies:
             db.session.delete(company)
-            db.session.commit()
-        return jsonify({'return':'Success'})
-                
-    def deleteCompanies():
-        numberDocuments = NumberDocument.query.filter_by(status='Ok')
-        for numberDocument in numberDocuments:
-            db.session.delete(numberDocument)
             db.session.commit()
         return jsonify({'return':'Success'})
 
