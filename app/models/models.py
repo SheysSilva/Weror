@@ -49,7 +49,7 @@ class NumberDocument(db.Model):
     status = db.Column(db.String(10), default='Blocked', nullable=False)
     relationship = db.relationship('Relationship', backref='NumberDocument')
 
-    def __init__(self, id, month, year, id_company):
+    def __init__(self, id, month, year):
         self.id = id,
         self.month = month
         self.year = year

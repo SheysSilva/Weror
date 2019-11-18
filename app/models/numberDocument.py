@@ -3,7 +3,6 @@ from flask import jsonify
 from app.util.util import *
 from app.models.models import *
 
-
 def getNumberDocuments():
     numberDocuments = NumberDocument.query.all()
     res = {}
@@ -36,33 +35,39 @@ def getNumberDocumentId(id):
 
     return jsonify(res)
 
-def postNumberDocument(id, month, year, status, cnpj):
+def postNumberDocument(id, month, year, id_company):
 
-    if isNull(id) or isNull(month) or isNull(year) or isNull(status) or isNull(cnpj):
+    if isNull(id) or isNull(month) or isNull(year) or isNull(id_company):
         return jsonify({'return':'Values Null!'})
-    else:
-        isCnpj = Company.query.filter_by(id=str(cnpj)).first()
+    
+    numberDocument = NumberDocument.query.filter_by(id=str(id)).first()
+
+    if not numberDocument:
+        isCnpj = Company.query.filter_by(id=str(id_company)).first()
 
         if not isCnpj:
-            company = Company(str(cnpj))
+            company = Company(str(id_company))
             db.session.add(company)
             db.session.commit()
 
-        numberDocument = NumberDocument(str(id), str(month), str(status), str(cnpj))
+        numberDocument = NumberDocument(str(id), str(month), str(year))
         db.session.add(numberDocument)
         db.session.commit()
 
-        rel = Relationship(company.id, numberDocument.id)
+        rel = Relationship(id_company, id)
         db.session.add(rel)
         db.session.commit()
 
         res = {
             'id': numberDocument.id,
             'month': numberDocument.month,
-            'status': numberDocument.status,
-            'cnpj': numberDocument.cnpj
+            'year': numberDocument.year,
+            'status': numberDocument.status
         }
         return jsonify(res)
+
+    return jsonify({'return': 'Exist NumberDocument'})
+
 
 def putNumberDocument(id, month, year, status):
     if isNull(id):

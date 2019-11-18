@@ -1,9 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from app.models import key
-from app.models import company
-from app.models import relationship
+from app.models import key, company, numberDocument, relationship
 from app.db import db
 
 from config import app_config
@@ -17,7 +15,7 @@ def create_app(config_name):
 
     keys= '/keys/'
     companies= '/companies/'
-    numberDocument = '/numberDocument/'
+    numberDocuments = '/numberDocuments/'
 
     from app.models.models import Chaves, Company, NumberDocument
 
@@ -133,138 +131,35 @@ def create_app(config_name):
 
     ### Number Document ###
 
-    @app.route(numberDocument, methods=['GET'])
+    @app.route(numberDocuments, methods=['GET'])
     def getNumberDocuments():
-        numberDocuments = NumberDocument.query.all()
-        res = {}
-        
-        for numberDocument in numberDocuments:
+        return numberDocument.getNumberDocuments()
 
-            res[numberDocument.id] = {
-                'id': numberDocument.id,
-                'month': numberDocument.month,
-                'status': numberDocument.status,
-                'cnpj': numberDocument.cnpj
-            }          
-                
-        return jsonify(res)
-
-    @app.route(numberDocument+'<id>', methods=['GET'])
+    @app.route(numberDocuments+'<id>', methods=['GET'])
     def getNumberDocumentId(id):
-        if isNull(id):
-            return jsonify({'return':'Id is Null!'})
+        return numberDocument.getNumberDocumentId(id)
 
-        numberDocument = NumberDocument.query.filter_by(id=str(id)).first()
-        
-        if not numberDocument:
-            return jsonify({'return':'Number Document not exist!'})
-        res = {
-            'id': numberDocument.id,
-            'month': numberDocument.month,
-            'status': numberDocument.status,
-            'cnpj': numberDocument.cnpj
-        }
-
-        return jsonify(res)
-
-    @app.route(numberDocument, methods=['POST'])
+    @app.route(numberDocuments, methods=['POST'])
     def postNumberDocument():
         id = request.form.get('id')
         month = request.form.get('month')
-        status = request.form.get('status')
-        cnpj = request.form.get('cnpj')
+        year = request.form.get('year')
+        id_company = request.form.get('id_company')
 
-        if isNull(id) or isNull(month) or isNull(status) or isNull(cnpj):
-            return jsonify({'return':'Values Null!'})
-        else:
-            isCnpj = Company.query.filter_by(id=str(cnpj)).first()
+        return numberDocument.postNumberDocument(id, month, year, id_company)
 
-            if not isCnpj:
-                company = Company(str(cnpj))
-                db.session.add(company)
-                db.session.commit()
-
-            numberDocument = NumberDocument(str(id), str(month), str(status), str(cnpj))
-            db.session.add(numberDocument)
-            db.session.commit()
-            res = {
-                'id': numberDocument.id,
-                'month': numberDocument.month,
-                'status': numberDocument.status,
-                'cnpj': numberDocument.cnpj
-            }
-            return jsonify(res)
-
-    @app.route(numberDocument, methods=['PUT'])
+    @app.route(numberDocuments, methods=['PUT'])
     def putNumberDocument():
         id = request.form.get('id')
         month = request.form.get('month')
+        year = request.form.get('year')
         status = request.form.get('status')
-        cnpj = request.form.get('cnpj')
 
-        if isNull(id):
-            return jsonify({'return':'Id is Null!'})
+        return numberDocument.putNumberDocument(id, month, year, status)
 
-        numberDocument = NumberDocument.query.filter_by(id=str(id)).first()
-        
-        if not numberDocument:
-            return jsonify({'return': 'Not Exist'})
-        else:
-            if not isNull(month):
-                numberDocument.month = month
-            if not isNull(status):
-                numberDocument.status = status
-            if not isNull(cnpj):
-                numberDocument.cnpj = cnpj
-                
-            db.session.commit()
-            numberDocument = Company.query.filter_by(id=str(id)).first()
-            
-            res = {
-                'id': numberDocument.id,
-                'month': numberDocument.month,
-                'status': numberDocument.status,
-                'cnpj': numberDocument.cnpj
-            }
-            return jsonify(res)
-
-    @app.route(numberDocument, methods=['DELETE'])
+    @app.route(numberDocuments, methods=['DELETE'])
     def deleteNumberDocument():
         id = request.form.get('id')
-
-        if isNull(id): 
-            return jsonify({'return':'Ids Null!'})
-        else:
-            numberDocument = NumberDocument.query.filter_by(id=str(id)).first()
-            
-            if not numberDocument:
-                return jsonify({'return': 'Not Exist'})
-            else:
-                if numberDocument.status == 'Inactive':
-                    db.session.delete(numberDocument)
-                    db.session.commit()
-
-                    return jsonify({
-                        'return':'Success', 
-                        'id': numberDocument.id, 
-                        'month': numberDocument.month,
-                        'status': numberDocument.status,
-                        'cnpj': numberDocument.cnpj
-                    })
-
-                return jsonify({
-                    'return': 'Number Document is used', 
-                    'id': numberDocument.id,
-                    'month': numberDocument.month,
-                    'status': numberDocument.status,
-                    'cnpj': numberDocument.cnpj
-                })
-
-    def isNull(a):
-        a = str(a)
-        if not a or not a.strip() or a == 'None':
-            return True
-        return False
-
+        return numberDocument.deleteNumberDocument(id)
     
     return app
