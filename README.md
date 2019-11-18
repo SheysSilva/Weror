@@ -45,7 +45,7 @@ flask run --host=0.0.0.0 --port=8080
 python test.py
 ```
 
-## Status das Chaves
+### Status das Chaves
 
 As chaves possuem quatro estados diferentes:
 
@@ -54,7 +54,7 @@ As chaves possuem quatro estados diferentes:
 - (Ok): Chave já foi usada em outra consulta.
 - (Bloqued): Chave está bloqueada para uso.
 
-## Status das Empresas(Companies)
+### Status das Empresas(Companies)
 
 As Empresas possuem quatro estados diferentes:
 
@@ -62,7 +62,7 @@ As Empresas possuem quatro estados diferentes:
 - (Inactive): A empresa está empedida de gerar chaves.
 - (Bloqued): A empresa não irá gerar chaves por um tempo determinado.
 
-## Status do Numeros de Documento(Number Documents)
+### Status do Numeros de Documento(Number Documents)
 
 Os Numeros de Documentos possuem quatro estados diferentes:
 
