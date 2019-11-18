@@ -1,9 +1,10 @@
 import requests
 import json
+from app.routes import *
 
 url = 'localhost'
 port = '8080'
-companies ='/companies/'
+companies = '/companies/'
 
 print('GET ALL')
 get = requests.get('http://'+url+':'+port+companies)

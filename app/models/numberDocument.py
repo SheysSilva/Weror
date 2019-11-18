@@ -2,6 +2,8 @@ from app.db import db
 from flask import jsonify
 from app.util.util import *
 from app.models.models import *
+from app.models import relationship
+
 
 def getNumberDocuments():
     numberDocuments = NumberDocument.query.all()
@@ -54,9 +56,7 @@ def postNumberDocument(id, month, year, id_company):
         db.session.add(numberDocument)
         db.session.commit()
 
-        rel = Relationship(id_company, id)
-        db.session.add(rel)
-        db.session.commit()
+        relationship.postRelationship(str(id_company), str(id))
 
         res = {
             'id': numberDocument.id,

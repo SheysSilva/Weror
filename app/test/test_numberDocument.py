@@ -3,8 +3,7 @@ import json
 
 url = 'localhost'
 port = '8080'
-numberDocuments='/numberDocuments/'
-companies='/companies/'
+numberDocuments = '/numberDocuments/'
 
 print('GET ALL')
 get = requests.get('http://'+url+':'+port+numberDocuments)

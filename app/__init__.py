@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from app.models import key, company, numberDocument, relationship
 from app.db import db
+from app.routes import *
 
 from config import app_config
 
@@ -12,10 +13,6 @@ def create_app(config_name):
     app.config.from_pyfile('config.py')
     db.init_app(app)
     migrate = Migrate(app, db)
-
-    keys= '/keys/'
-    companies= '/companies/'
-    numberDocuments = '/numberDocuments/'
 
     from app.models.models import Chaves, Company, NumberDocument
 
@@ -161,5 +158,33 @@ def create_app(config_name):
     def deleteNumberDocument():
         id = request.form.get('id')
         return numberDocument.deleteNumberDocument(id)
-    
+
+    @app.route(relationships, methods=['GET'])
+    def getRelationship():
+        id_company = request.form.get('id_company')
+        id_numberDocument = request.form.get('id_numberDocument')
+        return relationship.getRelationship(id_company, id_numberDocument)
+
+    @app.route(relationships, methods=['POST'])
+    def postRelationship():
+        id_company = request.form.get('id_company')
+        id_numberDocument = request.form.get('id_numberDocument')
+
+        return relationship.postRelationship(id_company, id_numberDocument)
+
+    @app.route(relationships, methods=['PUT'])
+    def putRelationship():
+        id_company = request.form.get('id_company')
+        id_numberDocument = request.form.get('id_numberDocument')
+        status = request.form.get('status')
+
+        return relationship.putRelationship(id_company, id_numberDocument, status)
+
+    @app.route(relationships, methods=['DELETE'])
+    def deleteRelationship():
+        id_company = request.form.get('id_company')
+        id_numberDocument = request.form.get('id_numberDocument')
+
+        return relationship.deleteRelationship(id_company, id_numberDocument)
+
     return app
