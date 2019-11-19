@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import *
 from flask_migrate import Migrate
 from app.models import key, company, numberDocument, relationship
 from app.db import db

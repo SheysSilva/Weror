@@ -137,12 +137,15 @@ get = requests.get('http://'+url+':'+port+relationships)
 print(get.json())
 
 print('DELETE ONE ELEMENT')
+print("get")
 get = requests.get('http://'+url+':'+port+relationships, data={'id_numberDocument': '522010011', 'id_company': '52201001355983'})
 print(get.json())
 
+print("delete")
 delete = requests.delete('http://'+url+':'+port+relationships, data={'id_numberDocument': '522010011', 'id_company': '52201001355983'})
 print(delete.json())
 
+print("get")
 get = requests.get('http://'+url+':'+port+relationships, data={'id_numberDocument': '522010011', 'id_company': '52201001355983'})
 print(get.json())
 

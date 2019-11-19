@@ -114,21 +114,23 @@ def putRelationship(id_company, id_numberDocument, status):
 
 def deleteRelationship(id_company, id_numberDocument):
 	if not isNull(id_company) and not isNull(id_numberDocument):
-		relationship = Relationship.query.filter_by(id_company=str(id_company), id_numberDocument=str(id_numberDocument)).first()
-		if not not relationship:
-			db.session.delete(relationship)
-			db.session.commit()
+		rel = Relationship.query.filter_by(id_company=str(id_company), id_numberDocument=str(id_numberDocument))
+		if not rel:
+			return jsonify({'return': 'Relationship not exist'})
+		
+		db.session.delete(rel)
+		db.session.commit()
 		return jsonify({'return': 'Success'})
 
-	if not isNull(id_company) and isNull(id_numberDocument):
+	if not isNull(id_company):
 		return deleteRelationshipCompanyId(id_company)
-	if isNull(id_company) and not isNull(id_numberDocument):
+	if not isNull(id_numberDocument):
 		return deleteRelationshipNumberDocumentId(id_numberDocument)
 	
 	return jsonify({'return': 'Values is Null'})
 
 def deleteRelationshipCompanyId(id_company):
-	relationship = Relationship.query.filter_by(id_company=str(id_company)).first()
+	relationship = Relationship.query.filter_by(id_company=str(id_company))
 	for rel in relationship:
 		db.session.delete(rel)
 		db.session.commit()
@@ -136,7 +138,7 @@ def deleteRelationshipCompanyId(id_company):
 	return jsonify({'return': 'Success'})
 
 def deleteRelationshipNumberDocumentId(id_numberDocument):
-	relationship = Relationship.query.filter_by(id_numberDocument=str(id_numberDocument)).first()
+	relationship = Relationship.query.filter_by(id_numberDocument=str(id_numberDocument))
 	for rel in relationship:
 		db.session.delete(rel)
 		db.session.commit()
