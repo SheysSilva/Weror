@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response
 from flask_sqlalchemy import *
 from flask_migrate import Migrate
 from app.models import key, company, numberDocument, relationship
@@ -14,7 +14,7 @@ def create_app(config_name):
     db.init_app(app)
     migrate = Migrate(app, db)
 
-    from app.models.models import Chaves, Company, NumberDocument
+    from app.models.models import Keys, Company, NumberDocument
 
     @app.route('/')
     def hello_world():
@@ -22,54 +22,62 @@ def create_app(config_name):
 
     @app.route('/set/', methods=['GET'])
     def setStatus():
-        chaves = Chaves.query.filter_by(status='Using')
-        res = {}
-        for chave in chaves:
-            chave.status = 'Free'
+        keys = Keys.query.filter_by(status='Using')
+        res = []
+        for key in keys:
+            key.status = 'Free'
             db.session.commit()
 
-            res[chave.id] = {
-                'id': chave.id,
-                'status': chave.status
-            }          
+            res.append(
+                {
+                    'id': key.id, 
+                    'status': key.status
+                }
+            )              
                 
-        return jsonify(res)
+        return make_response(jsonify(res), 200)
 
     @app.route('/using/', methods=['GET'])
     def getStatusUsing():
-        chaves = Chaves.query.filter_by(status='Using')
-        res = {}
-        for chave in chaves:
-            res[chave.id] = {
-                'id': chave.id,
-                'status': chave.status
-            }          
+        keys = Keys.query.filter_by(status='Using')
+        res = []
+        for key in keys:
+            res.append(
+                {
+                    'id': key.id, 
+                    'status': key.status
+                }
+            )              
                 
-        return jsonify(res)
+        return make_response(jsonify(res), 200)
 
     @app.route('/free/', methods=['GET'])
     def getStatusFree():
-        chaves = Chaves.query.filter_by(status='Free')
-        res = {}
-        for chave in chaves:
-            res[chave.id] = {
-                'id': chave.id,
-                'status': chave.status
-            }          
+        keys = Keys.query.filter_by(status='Free')
+        res = []
+        for key in keys:
+            res.append(
+                {
+                    'id': key.id, 
+                    'status': key.status
+                }
+            )          
                 
-        return jsonify(res)
+        return make_response(jsonify(res), 200)
 
     @app.route('/ok/', methods=['GET'])
     def getStatusOK():
-        chaves = Chaves.query.filter_by(status='Ok')
-        res = {}
-        for chave in chaves:
-            res[chave.id] = {
-                'id': chave.id,
-                'status': chave.status
-            }          
+        keys = Keys.query.filter_by(status='Ok')
+        res = []
+        for key in keys:
+            res.append(
+                {
+                    'id': key.id, 
+                    'status': key.status
+                }
+            )               
                 
-        return jsonify(res)
+        return make_response(jsonify(res), 200)
 
     #### KEYS ####
     @app.route(keys, methods=['GET'])
@@ -83,7 +91,15 @@ def create_app(config_name):
     @app.route(keys, methods=['POST'])
     def postKey():
         id = request.form.get('id')
-        return key.postKey(id)
+        state = request.form.get('state')
+        year = request.form.get('year')
+        month = request.form.get('month')
+        model = request.form.get('model')
+        serie = request.form.get('serie')
+        issue = request.form.get('issue')
+        numberDocumentId = request.form.get('numberDocumentId')
+
+        return key.postKey(id, state, year, month, model, serie, issue, numberDocumentId)
 
     @app.route(keys, methods=['PUT'])
     def putKey():
@@ -113,7 +129,9 @@ def create_app(config_name):
     @app.route(companies, methods=['POST'])
     def postCompany():
         id = request.form.get('id')
-        return company.postCompany(id)
+        name = request.form.get('name')
+
+        return company.postCompany(id, name)
 
     @app.route(companies, methods=['PUT'])
     def putCompany():
@@ -139,20 +157,16 @@ def create_app(config_name):
     @app.route(numberDocuments, methods=['POST'])
     def postNumberDocument():
         id = request.form.get('id')
-        month = request.form.get('month')
-        year = request.form.get('year')
         id_company = request.form.get('id_company')
 
-        return numberDocument.postNumberDocument(id, month, year, id_company)
+        return numberDocument.postNumberDocument(id, id_company)
 
     @app.route(numberDocuments, methods=['PUT'])
     def putNumberDocument():
         id = request.form.get('id')
-        month = request.form.get('month')
-        year = request.form.get('year')
         status = request.form.get('status')
 
-        return numberDocument.putNumberDocument(id, month, year, status)
+        return numberDocument.putNumberDocument(id, status)
 
     @app.route(numberDocuments, methods=['DELETE'])
     def deleteNumberDocument():

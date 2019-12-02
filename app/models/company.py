@@ -1,64 +1,71 @@
 from app.db import db
-from flask import jsonify
+from flask import jsonify, make_response
 from app.util.util import *
 from app.models.models import *
 
 def getCompanies():
     companies = Company.query.filter_by(status='Active')
-    res = {}
-        
-    for company in companies:
+    res = []  
+    if companies == None:
+        return make_response(jsonify(res), 200)
 
-        res[company.id] = {
+    for company in companies:
+        res.append({
             'id': company.id,
+            'name': company.name,
             'status': company.status
-        }          
+        })          
                 
-    return jsonify(res)
+    return make_response(jsonify(res), 200)
 
 def getCompanyId(id):
     if isNull(id):
-        return jsonify({'return':'Id is Null!'})
+        return make_response(jsonify({'return':'Id is Null!'}), 406)
 
     company = Company.query.filter_by(id=str(id)).first()
 
     if not company:
-        return jsonify({'return':'Company not exist!'})
+        return make_response(jsonify({'return':'Company not exist!'}), 204)
     res = {
         'id': company.id,
+        'name': company.name,
         'status': company.status
     }
 
-    return jsonify(res)
+    return make_response(jsonify(res), 200)
 
-def postCompany(id):
-    if isNull(id):
-        return jsonify({'return':'ID null!'})
+def postCompany(id, name):
+    if isNull(id) or isNull(name):
+        return make_response(jsonify({'return':'ID null!'}), 406)
 
     company = Company.query.filter_by(id=str(id)).first()
         
     if not company:
-        company = Company(str(id))
+        company = Company(str(id), str(name))
         db.session.add(company)
         db.session.commit()
-        return jsonify({'id': company.id, 'status': company.status})
+        return make_response(jsonify({'id': company.id, 'name': company.name, 'status': company.status}), 201)
     else:
-        return jsonify({'return': 'Exist Company'})
+        return make_response(jsonify({'return': 'Exist Company'}), 200)
 
 
-def putCompany(id, status):
-    if isNull(id) or isNull(status):
-        return jsonify({'return':'Values is Null'})
+def putCompany(id, status, name):
+    if isNull(id):
+        return make_response(jsonify({'return':'Values is Null'}), 406)
 
     company = Company.query.filter_by(id=str(id)).first()
         
     if not company:
-        return jsonify({'return': 'Not Exist'})
+        return make_response(jsonify({'return': 'Not Exist'}), 204)
     else:
-        company.status = str(status)
+        if isNull(name):
+            company.name = str(name)
+        if isNull(status):
+            company.status = str(status)
+        
         db.session.commit()
         company = Company.query.filter_by(id=str(id)).first()
-        return jsonify({'id': company.id, 'status': company.status})
+        return make_response(jsonify({'id': company.id, 'name': company.name, 'status': company.status}), 200)
 
 def deleteCompany(id):
     if isNull(id): 
@@ -67,18 +74,18 @@ def deleteCompany(id):
         company = Company.query.filter_by(id=str(id)).first()
             
         if not company:
-            return jsonify({'return': 'Not Exist'})
+            return make_response(jsonify({'return': 'Not Exist'}), 204)
         else:
             if company.status == 'Inactive':
                 db.session.delete(company)
                 db.session.commit()
-                return jsonify({'return':'Success', 'id': company.id, 'status': company.status})
-            return jsonify({'return': 'Key not used', 'id': company.id, 'status': company.status})
+                return make_response(jsonify({'return':'Success', 'id': company.id, 'name': company.name, 'status': company.status}), 200)
+            return make_response(jsonify({'return': 'Company not used', 'id': company.id, 'name': company.name, 'status': company.status}), 200)
         
 def deleteCompanies():
     companies = Company.query.filter_by(status='Ok')
     for company in companies:
         db.session.delete(company)
         db.session.commit()
-    return jsonify({'return':'Success'})
+    return make_response(jsonify({'return':'Success'}), 200)
 

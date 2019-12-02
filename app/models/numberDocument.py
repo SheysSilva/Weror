@@ -1,5 +1,5 @@
 from app.db import db
-from flask import jsonify
+from flask import jsonify, make_response
 from app.util.util import *
 from app.models.models import *
 from app.models import relationship
@@ -7,40 +7,54 @@ from app.models import relationship
 
 def getNumberDocuments():
     numberDocuments = NumberDocument.query.all()
-    res = {}
+    res = []
     
     for numberDocument in numberDocuments:
 
-        res[numberDocument.id] = {
+        res.append({
             'id': numberDocument.id,
-            'month': numberDocument.month,
-            'year': numberDocument.year,
-            'status': numberDocument.status
-        }          
+            'status': numberDocument.status,
+            'company_id': numberDocument.company_id
+        })       
                 
-    return jsonify(res)
+    return make_response(jsonify(res), 200)
 
 def getNumberDocumentId(id):
     if isNull(id):
-        return jsonify({'return':'Id is Null!'})
+        return make_response(jsonify({'return':'Id is Null!'}), 406)
 
     numberDocument = NumberDocument.query.filter_by(id=str(id)).first()
         
     if not numberDocument:
-        return jsonify({'return':'Number Document not exist!'})
+        return make_response(jsonify({'return':'Number Document not exist!'}), 204)
     res = {
         'id': numberDocument.id,
-        'month': numberDocument.month,
-        'year': numberDocument.year,
-        'status': numberDocument.status
+        'status': numberDocument.status,
+        'company_id': numberDocument.company_id
     }
 
-    return jsonify(res)
+    return make_response(jsonify(res), 200)
 
-def postNumberDocument(id, month, year, id_company):
+def getNumberDocumentCompanyId(id):
+    if isNull(id):
+        return make_response(jsonify({'return':'Id is Null!'}), 406)
 
-    if isNull(id) or isNull(month) or isNull(year) or isNull(id_company):
-        return jsonify({'return':'Values Null!'})
+    numberDocument = NumberDocument.query.filter_by(company_id=str(id)).first()
+        
+    if not numberDocument:
+        return make_response(jsonify({'return':'Number Document not exist!'}), 204)
+    res = {
+        'id': numberDocument.id,
+        'status': numberDocument.status,
+        'company_id': numberDocument.company_id
+    }
+
+    return make_response(jsonify(res), 200)
+
+def postNumberDocument(id, id_company):
+
+    if isNull(id) or isNull(id_company):
+        return make_response(jsonify({'return':'Values Null!'}), 406)
     
     numberDocument = NumberDocument.query.filter_by(id=str(id)).first()
 
@@ -48,40 +62,32 @@ def postNumberDocument(id, month, year, id_company):
         isCnpj = Company.query.filter_by(id=str(id_company)).first()
 
         if not isCnpj:
-            company = Company(str(id_company))
-            db.session.add(company)
-            db.session.commit()
+            return make_response(jsonify({'return': 'Company not exist'}), 204)
 
-        numberDocument = NumberDocument(str(id), str(month), str(year))
+
+        numberDocument = NumberDocument(str(id), str(id_company))
         db.session.add(numberDocument)
         db.session.commit()
 
-        relationship.postRelationship(str(id_company), str(id))
-
         res = {
             'id': numberDocument.id,
-            'month': numberDocument.month,
-            'year': numberDocument.year,
-            'status': numberDocument.status
+            'status': numberDocument.status, 
+            'company_id': numberDocument.company_id
         }
-        return jsonify(res)
+        return make_response(jsonify(res), 201)
 
-    return jsonify({'return': 'Exist NumberDocument'})
+    return make_response(jsonify({'return': 'Exist NumberDocument'}), 200)
 
 
-def putNumberDocument(id, month, year, status):
+def putNumberDocument(id, status):
     if isNull(id):
-        return jsonify({'return':'Id is Null!'})
+        return make_response(jsonify({'return':'Id is Null!'}), 406)
     
     numberDocument = NumberDocument.query.filter_by(id=str(id)).first()
         
     if not numberDocument:
-        return jsonify({'return': 'Not Exist'})
+        return make_response(jsonify({'return': 'Not Exist'}), 204)
     else:
-        if not isNull(month):
-            numberDocument.month = month
-        if not isNull(year):
-            numberDocument.year = year
         if not isNull(status):
             numberDocument.status = status
             
@@ -90,37 +96,34 @@ def putNumberDocument(id, month, year, status):
             
         res = {
             'id': numberDocument.id,
-            'month': numberDocument.month,
-            'year': numberDocument.year,
-            'status': numberDocument.status
+            'status': numberDocument.status,
+            'company_id': numberDocument.company_id
         }
-        return jsonify(res)
+        return make_response(jsonify(res), 200)
 
 def deleteNumberDocument(id):
     if isNull(id): 
-        return jsonify({'return':'Ids Null!'})
+        return make_response(jsonify({'return':'Ids Null!'}), 406)
     else:
         numberDocument = NumberDocument.query.filter_by(id=str(id)).first()
             
         if not numberDocument:
-            return jsonify({'return': 'Not Exist'})
+            return make_response(jsonify({'return': 'Not Exist'}), 204)
         else:
             if numberDocument.status == 'Inactive':
                 db.session.delete(numberDocument)
                 db.session.commit()
 
-                return jsonify({
+                return make_response(jsonify({
                     'return':'Success', 
                     'id': numberDocument.id,
-                    'month': numberDocument.month,
-                    'year': numberDocument.year,
-                    'status': numberDocument.status
-                })
+                    'status': numberDocument.status,
+                    'company_id': numberDocument.company_id
+                }), 200)
 
-            return jsonify({
+            return make_response(jsonify({
                 'return': 'Number Document is used', 
                 'id': numberDocument.id,
-                'month': numberDocument.month,
-                'year': numberDocument.year,
-                'status': numberDocument.status
-            })
+                'status': numberDocument.status,
+                'company_id': numberDocument.company_id
+            }), 200)
