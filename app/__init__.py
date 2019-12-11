@@ -11,10 +11,13 @@ def create_app(config_name):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
-    db.init_app(app)
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
     migrate = Migrate(app, db)
 
-    from app.models.models import Keys, Company, NumberDocument
+    db.init_app(app)
+
+    from app.models.models import Company, NumberDocument, Keys
 
     @app.route('/')
     def hello_world():
@@ -79,50 +82,13 @@ def create_app(config_name):
                 
         return make_response(jsonify(res), 200)
 
-    #### KEYS ####
-    @app.route(keys, methods=['GET'])
-    def getKeys():
-        return key.getKeys()
-
-    @app.route(keys+'<id>', methods=['GET'])
-    def getKeyId(id):
-        return key.getKeyId(id)
-
-    @app.route(keys, methods=['POST'])
-    def postKey():
-        id = request.form.get('id')
-        state = request.form.get('state')
-        year = request.form.get('year')
-        month = request.form.get('month')
-        model = request.form.get('model')
-        serie = request.form.get('serie')
-        issue = request.form.get('issue')
-        numberDocumentId = request.form.get('numberDocumentId')
-
-        return key.postKey(id, state, year, month, model, serie, issue, numberDocumentId)
-
-    @app.route(keys, methods=['PUT'])
-    def putKey():
-        id = request.form.get('id')
-        status = request.form.get('status')
-
-        return key.putKey(id, status)
-    
-    @app.route(keys, methods=['DELETE'])
-    def deleteKey():
-        id = request.form.get('id')
-        return key.deleteKey(id)
-        
-    def deleteKeys():
-        return key.deleteKeys()
-
     ### COMPANIES ###
 
     @app.route(companies, methods=['GET'])
     def getCompanies():
         return company.getCompanies()
 
-    @app.route(companies+'<id>', methods=['GET'])
+    @app.route(companies+'/<id>', methods=['GET'])
     def getCompanyId(id):
         return company.getCompanyId(id)
 
@@ -130,8 +96,9 @@ def create_app(config_name):
     def postCompany():
         id = request.form.get('id')
         name = request.form.get('name')
+        random = request.form.get('random')
 
-        return company.postCompany(id, name)
+        return company.postCompany(id, name, random)
 
     @app.route(companies, methods=['PUT'])
     def putCompany():
@@ -146,59 +113,68 @@ def create_app(config_name):
 
     ### Number Document ###
 
-    @app.route(numberDocuments, methods=['GET'])
-    def getNumberDocuments():
-        return numberDocument.getNumberDocuments()
+    @app.route(companies+'/<string:id_company>'+numberDocuments, methods=['GET'])
+    def getNumberDocuments(id_company):
+        return numberDocument.getNumberDocumentCompanyId(id_company)
 
-    @app.route(numberDocuments+'<id>', methods=['GET'])
-    def getNumberDocumentId(id):
+    @app.route(companies+'/<string:id_company>'+numberDocuments+'/<id>', methods=['GET'])
+    def getNumberDocumentId(id, id_company):
         return numberDocument.getNumberDocumentId(id)
 
-    @app.route(numberDocuments, methods=['POST'])
-    def postNumberDocument():
+    @app.route(companies+'/<string:id_company>'+numberDocuments, methods=['POST'])
+    def postNumberDocument(id_company):
         id = request.form.get('id')
-        id_company = request.form.get('id_company')
+        id_company = str(id_company)
 
         return numberDocument.postNumberDocument(id, id_company)
 
-    @app.route(numberDocuments, methods=['PUT'])
-    def putNumberDocument():
+    @app.route(companies+'/<string:id_company>'+numberDocuments, methods=['PUT'])
+    def putNumberDocument(id_company):
         id = request.form.get('id')
         status = request.form.get('status')
 
         return numberDocument.putNumberDocument(id, status)
 
-    @app.route(numberDocuments, methods=['DELETE'])
-    def deleteNumberDocument():
+    @app.route(companies+'/<string:id_company>'+numberDocuments, methods=['DELETE'])
+    def deleteNumberDocument(id_company):
         id = request.form.get('id')
         return numberDocument.deleteNumberDocument(id)
 
-    @app.route(relationships, methods=['GET'])
-    def getRelationship():
-        id_company = request.form.get('id_company')
-        id_numberDocument = request.form.get('id_numberDocument')
-        return relationship.getRelationship(id_company, id_numberDocument)
+    #### KEYS ####
+    @app.route(companies+'/<string:id_company>'+keys, methods=['GET'])
+    def getKeys(id_company):
+        return key.getKeys(id_company)
 
-    @app.route(relationships, methods=['POST'])
-    def postRelationship():
-        id_company = request.form.get('id_company')
-        id_numberDocument = request.form.get('id_numberDocument')
+    @app.route(companies+'/<string:id_company>'+numberDocuments+keys+'/<string:id>', methods=['GET'])
+    def getKeyId(id):
+        return key.getKeyId(id)
 
-        return relationship.postRelationship(id_company, id_numberDocument)
+    @app.route(companies+'/<string:id_company>'+numberDocuments+'/<string:id_number>'+keys, methods=['POST'])
+    def postKey(id_company, id_number):
+        id = request.form.get('id')
+        state = request.form.get('state')
+        year = request.form.get('year')
+        month = request.form.get('month')
+        model = request.form.get('model')
+        serie = request.form.get('serie')
+        issue = request.form.get('issue')
+        numberDocumentId = str(id_number)
 
-    @app.route(relationships, methods=['PUT'])
-    def putRelationship():
-        id_company = request.form.get('id_company')
-        id_numberDocument = request.form.get('id_numberDocument')
+        return key.postKey(id, state, year, month, model, serie, issue, numberDocumentId)
+
+    @app.route(companies+'/<string:id_company>'+numberDocuments+keys+'/<string:id>', methods=['PUT'])
+    def putKey(id_company):
+        id = request.form.get('id')
         status = request.form.get('status')
 
-        return relationship.putRelationship(id_company, id_numberDocument, status)
-
-    @app.route(relationships, methods=['DELETE'])
-    def deleteRelationship():
-        id_company = request.form.get('id_company')
-        id_numberDocument = request.form.get('id_numberDocument')
-
-        return relationship.deleteRelationship(id_company, id_numberDocument)
+        return key.putKey(id, status)
+    
+    @app.route(companies+'/<string:id_company>'+numberDocuments+keys, methods=['DELETE'])
+    def deleteKey():
+        id = request.form.get('id')
+        return key.deleteKey(id)
+        
+    def deleteKeys():
+        return key.deleteKeys()
 
     return app

@@ -35,37 +35,39 @@ def getNumberDocumentId(id):
 
     return make_response(jsonify(res), 200)
 
-def getNumberDocumentCompanyId(id):
-    if isNull(id):
+def getNumberDocumentCompanyId(company_id):
+    if isNull(company_id):
         return make_response(jsonify({'return':'Id is Null!'}), 406)
 
-    numberDocument = NumberDocument.query.filter_by(company_id=str(id)).first()
+    numberDocuments = NumberDocument.query.filter_by(company_id=str(company_id))
         
-    if not numberDocument:
-        return make_response(jsonify({'return':'Number Document not exist!'}), 204)
-    res = {
-        'id': numberDocument.id,
-        'status': numberDocument.status,
-        'company_id': numberDocument.company_id
-    }
+    res = []
+    
+    for numberDocument in numberDocuments:
 
+        res.append({
+            'id': numberDocument.id,
+            'status': numberDocument.status,
+            'company_id': numberDocument.company_id
+        })       
+                
     return make_response(jsonify(res), 200)
 
-def postNumberDocument(id, id_company):
+def postNumberDocument(id, company_id):
 
-    if isNull(id) or isNull(id_company):
+    if isNull(id) or isNull(company_id):
         return make_response(jsonify({'return':'Values Null!'}), 406)
     
     numberDocument = NumberDocument.query.filter_by(id=str(id)).first()
 
     if not numberDocument:
-        isCnpj = Company.query.filter_by(id=str(id_company)).first()
+        isCnpj = Company.query.filter_by(id=str(company_id)).first()
 
         if not isCnpj:
             return make_response(jsonify({'return': 'Company not exist'}), 204)
 
 
-        numberDocument = NumberDocument(str(id), str(id_company))
+        numberDocument = NumberDocument(str(id), str(company_id))
         db.session.add(numberDocument)
         db.session.commit()
 

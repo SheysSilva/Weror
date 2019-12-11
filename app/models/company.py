@@ -34,14 +34,14 @@ def getCompanyId(id):
 
     return make_response(jsonify(res), 200)
 
-def postCompany(id, name):
-    if isNull(id) or isNull(name):
+def postCompany(id, name, random):
+    if isNull(id) or isNull(name) or isNull(random):
         return make_response(jsonify({'return':'ID null!'}), 406)
 
     company = Company.query.filter_by(id=str(id)).first()
         
     if not company:
-        company = Company(str(id), str(name))
+        company = Company(str(id), str(name), str(random))
         db.session.add(company)
         db.session.commit()
         return make_response(jsonify({'id': company.id, 'name': company.name, 'status': company.status}), 201)

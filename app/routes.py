@@ -1,4 +1,3 @@
-keys= '/keys/'
-companies= '/companies/'
-numberDocuments = '/numberDocuments/'
-relationships = '/relationships/'
+companies= '/companies'
+numberDocuments = '/numberDocuments'
+keys= '/keys'

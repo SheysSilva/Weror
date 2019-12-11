@@ -17,9 +17,10 @@ class Company(db.Model):
     type_random = db.Column(db.String(3), default='000')
     status = db.Column(db.String(10), default='Active', nullable=False)
 
-    def __init__(self, id, name):
+    def __init__(self, id, name, random):
         self.id = id
         self.name = name
+        self.type_random = random
 
     def __repr__(self):
         return '<Company %d>' % self.id
@@ -48,12 +49,12 @@ class Keys(db.Model):
     # as is the name of the model
     __tablename__ = 'Keys'
 
-    id = db.Column(db.String(44), primary_key=True)
+    id = db.Column(db.String(45), primary_key=True)
     state = db.Column(db.String(2), nullable=False)
     year = db.Column(db.String(2), nullable=False)
     month = db.Column(db.String(2), nullable=False)
     model = db.Column(db.String(2), nullable=False)
-    serie = db.Column(db.String(2), nullable=False)
+    serie = db.Column(db.String(3), nullable=False)
     issue = db.Column(db.String(1), nullable=False)
     status = db.Column(db.String(10), default='Free', nullable=False)
     numberDocument_id = db.Column(db.String(9), db.ForeignKey('NumberDocument.id'), nullable=False)

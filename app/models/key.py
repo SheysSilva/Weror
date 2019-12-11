@@ -1,5 +1,6 @@
 from app.db import db
 from flask import jsonify, make_response
+import json
 from app.util.util import *
 from app.models.models import *
 
@@ -14,6 +15,20 @@ def getKeys():
             'id': key.id,
             'status': key.status
         })          
+                
+    return make_response(jsonify(res), 200)
+
+def getKeys(company_id):
+    numbers = NumberDocument.query.filter_by(company_id=str(company_id))
+
+    res = []
+    for number in numbers:
+        keys = Keys.query.filter_by(numberDocument_id=str(number.id))
+        for key in keys:
+            res.append({
+                'id': key.id,
+                'status': key.status
+            })     
                 
     return make_response(jsonify(res), 200)
 
@@ -33,7 +48,7 @@ def getKeyId(id):
     return make_response(jsonify(res), 200)
 
 def postKey(id, state, year, month, model, serie, issue, numberDocumentId):
-    if isNull(id) or isNull(uf) or isNull(year) or isNull(month) or isNull(model) or isNull(serie) or isNull(issue) or isNull(numberDocumentId):
+    if isNull(id) or isNull(state) or isNull(year) or isNull(month) or isNull(model) or isNull(serie) or isNull(issue) or isNull(numberDocumentId):
         return make_response(jsonify({'return':'ID null!'}), 406)
 
     key = Keys.query.filter_by(id=str(id)).first()

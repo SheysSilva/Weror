@@ -36,7 +36,7 @@ flask run
 ## Rodar o projeto para acesso remoto
 
 ```
-flask run --host=0.0.0.0 --port=8080
+flask run --host=0.0.0.0 --port=8081
 ```
 
 ## Rodar os Testes
