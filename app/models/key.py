@@ -4,7 +4,7 @@ import json
 from app.util.util import *
 from app.models.models import *
 
-def getKeys():
+def getKeysFree():
     keys = Keys.query.filter_by(status='Free').limit(64)
     res = []
     for key in keys:
@@ -19,17 +19,14 @@ def getKeys():
     return make_response(jsonify(res), 200)
 
 def getKeys(company_id):
-    numbers = NumberDocument.query.filter_by(company_id=str(company_id))
-
     res = []
-    for number in numbers:
-        keys = Keys.query.filter_by(numberDocument_id=str(number.id))
-        for key in keys:
-            res.append({
-                'id': key.id,
-                'status': key.status
-            })     
-                
+    keys = Keys.query.filter_by(company_id=str(company_id))
+    for key in keys:
+        res.append({
+            'id': key.id,
+            'status': key.status
+        })     
+                        
     return make_response(jsonify(res), 200)
 
 def getKeyId(id):
@@ -47,19 +44,19 @@ def getKeyId(id):
 
     return make_response(jsonify(res), 200)
 
-def postKey(id, state, year, month, model, serie, issue, numberDocumentId):
-    if isNull(id) or isNull(state) or isNull(year) or isNull(month) or isNull(model) or isNull(serie) or isNull(issue) or isNull(numberDocumentId):
+def postKey(id, state, year, month, model, serie, issue, company_id):
+    if isNull(id) or isNull(state) or isNull(year) or isNull(month) or isNull(model) or isNull(serie) or isNull(issue) or isNull(company_id):
         return make_response(jsonify({'return':'ID null!'}), 406)
 
     key = Keys.query.filter_by(id=str(id)).first()
 
     if not key:
-        numberDocument = NumberDocument.query.filter_by(id=str(numberDocumentId)).first()
+        company = Company.query.filter_by(id=str(company_id)).first()
 
-        if not numberDocument:
+        if not company:
             return make_response(jsonify({'return': 'Number Document not exist'}), 204)
 
-        key = Keys(str(id), str(state), str(year), str(month), str(model), str(serie), str(issue), str(numberDocumentId))
+        key = Keys(str(id), str(state), str(year), str(month), str(model), str(serie), str(issue), str(company_id))
         db.session.add(key)
         db.session.commit()
         return make_response(jsonify({'id': key.id}), 201)
@@ -92,8 +89,7 @@ def deleteKey(id):
             if key.status == 'Ok':
                 db.session.delete(key)
                 db.session.commit()
-                return make_response(jsonify({'return':'Success', 'id': key.id, 'status': key.status}), 200)
-        
+                return make_response(jsonify({'return':'Success', 'id': key.id, 'status': key.status}), 200)        
             return make_response(jsonify({'return': 'Key not used', 'id': key.id, 'status': key.status}), 200)
 
 def deleteKeys():

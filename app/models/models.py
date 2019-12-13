@@ -25,21 +25,6 @@ class Company(db.Model):
     def __repr__(self):
         return '<Company %d>' % self.id
 
-class NumberDocument(db.Model):
-    """docstring for NumberDocument"""
-    __tablename__ = 'NumberDocument'
-
-    id = db.Column(db.String(9), primary_key=True)
-    status = db.Column(db.String(10), default='Blocked', nullable=False)
-    company_id = db.Column(db.String(14), db.ForeignKey('Company.id'), nullable=False)
-
-    def __init__(self, id, company_id):
-        self.id = id
-        self.company_id = company_id
-
-    def __repr__(self):
-        return '<NumberDocument %d>' % self.id
-
 class Keys(db.Model):
     """
     Create an Keys table
@@ -57,9 +42,9 @@ class Keys(db.Model):
     serie = db.Column(db.String(3), nullable=False)
     issue = db.Column(db.String(1), nullable=False)
     status = db.Column(db.String(10), default='Free', nullable=False)
-    numberDocument_id = db.Column(db.String(9), db.ForeignKey('NumberDocument.id'), nullable=False)
+    company_id = db.Column(db.String(14), db.ForeignKey('Company.id'), nullable=False)
 
-    def __init__(self, id, state, year, month, model, serie, issue, numberDocument_id):
+    def __init__(self, id, state, year, month, model, serie, issue, company_id):
         self.id = id
         self.state = state
         self.year = year
@@ -67,7 +52,40 @@ class Keys(db.Model):
         self.model = model
         self.serie = serie
         self.issue = issue
-        self.numberDocument_id = numberDocument_id
+        self.company_id = company_id
 
     def __repr__(self):
         return '<Keys %d>' % self.id
+
+class Month(db.Model):
+    """
+    Create an Month table
+    """    
+
+     # Ensures table will be named in plural and not in singular
+    # as is the name of the model
+    __tablename__ = 'Month'
+
+    id = db.Column(db.String(2), primary_key=True)
+    state = db.Column(db.String(2), primary_key=True, nullable=False)
+    year = db.Column(db.String(4), primary_key=True, nullable=False)
+    model = db.Column(db.String(2), primary_key=True, nullable=False)
+    serie = db.Column(db.String(3), primary_key=True, nullable=False)
+    issue = db.Column(db.String(1), primary_key=True, nullable=False)
+    inicial = db.Column(db.Integer, default=1, nullable=False)
+    returns = db.Column(db.Integer, default=0, nullable=False)
+    company_id = db.Column(db.String(14), db.ForeignKey('Company.id'), primary_key=True)
+
+    def __init__(self, id, year, serie, model, issue, state,  inicial, company_id):
+        self.id = id
+        self.state = state
+        self.year = year
+        self.model = model
+        self.serie = serie
+        self.issue = issue
+        self.inicial = inicial
+        self.company_id = company_id
+
+    def __repr__(self):
+        return '<Month %d>' % self.id
+        

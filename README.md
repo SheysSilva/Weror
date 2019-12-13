@@ -85,4 +85,11 @@ _Cada Numero de Documento possui uma relação com a Empresa, onde essa relaçã
 - (Active): Esta gerando notas.
 - (Inactive): Não gera mais notas.
 
+### Status do Servidor
+
+ - 200 - Possui retorno.
+ - 201 - O servidor criou o objeto com sucesso.
+ - 406 - Algum dos parametros possui valor Null.
+ - 204 - O objeto requisitado não existe.
+
 ###### Site: [Contagil](http://www.contagilpb.com.br/)
